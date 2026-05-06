@@ -104,3 +104,34 @@ The current implementation of OutrO will only focus on implementing the 16 gener
 
 ![ARM7 Register Set](Images/image.png)
 
+
+
+
+# Register File 
+For dual-issue CPU, the register file shall have two issue slots:
+4 read ports (2 source operands per ALU)
+2 commit write ports
+R15 stored in regfile
+R15 updated only by instruction fetch via i_pc_next
+
+
+```
+                Register File
+         +------------------------+
+
+ rs1_0 ->|                        |-> rs1_0_data
+ rs2_0 ->|                        |-> rs2_0_data
+
+ rs1_1 ->|                        |-> rs1_1_data
+ rs2_1 ->|                        |-> rs2_1_data
+
+         |                        |
+
+ wr0 --->|                        |
+ data0 ->|                        |
+
+ wr1 --->|                        |
+ data1 ->|                        |
+
+         +------------------------+
+```
