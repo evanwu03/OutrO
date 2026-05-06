@@ -17,7 +17,7 @@
 - Simple memory unit for data
 
 
-Issue width: 1
+Issue width: 2
 Integer RS entries: 4
 Load buffer entries: 2
 ROB entries: 8
