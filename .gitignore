@@ -208,3 +208,9 @@ __marimo__/
 
 #Drawio 
 .drawio.bkp
+
+
+
+# Questa Sim build
+sim_build/
+qrun.log
