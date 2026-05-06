@@ -1,4 +1,7 @@
 
+// Description: 2w/4r register file
+// Author: Evan Wu
+// Date revised: 5/6/2026
 
 module register_file  #(
     parameter NUM_REGS = 16,
@@ -44,7 +47,10 @@ module register_file  #(
 
     // Data Read slot 1
     output logic [DATA_WIDTH-1:0] o_rs1_1,
-    output logic [DATA_WIDTH-1:0] o_rs2_1
+    output logic [DATA_WIDTH-1:0] o_rs2_1,
+
+    // dedicated PC output
+    output logic [DATA_WIDTH-1:0] o_pc
 
 
 );
@@ -96,6 +102,8 @@ always_ff @(posedge i_clk or negedge i_nrst) begin : sync_write
             r_regs[PC_REG] <= i_pc_next;
         end
  end
+
+ assign o_pc = r_regs[PC_REG];
  
 
 endmodule

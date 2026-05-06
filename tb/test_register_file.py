@@ -83,3 +83,4 @@ async def test_register_file_basic(dut):
     await Timer(1, unit="ns")
 
     assert dut.o_rs1_1.value.to_unsigned()  == 8
+    assert dut.o_pc.value.to_unsigned() == 8

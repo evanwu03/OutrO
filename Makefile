@@ -6,6 +6,11 @@ HDL_DIR  := hdl
 TB_DIR   := tb
 BUILD    := build
 
+# Simulation arguments 
+
+ifeq ($(SIM), questa) 
+	SIM_ARGS="-gGENERIC=INSTR_COUNT"
+endif 
 
 # Location of python installation
 VENV := /home/evanwu03/projects/OutrO/.venv
@@ -25,7 +30,8 @@ COCOTB_TOPLEVEL ?= $(TOPLEVEL)
 COCOTB_LOG_LEVEL ?= DEBUG
 
 # COCOTB_TEST_MODULES is the basename of the Python test file(s)
-COCOTB_TEST_MODULES ?= test_register_file # This has to be on same level as makefile apparently
+COCOTB_TEST_MODULES := test_register_file \
+
 
 
 VERILOG_SOURCES :=  $(wildcard $(HDL_DIR)/*.sv) \

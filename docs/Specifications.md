@@ -114,24 +114,29 @@ For dual-issue CPU, the register file shall have two issue slots:
 R15 stored in regfile
 R15 updated only by instruction fetch via i_pc_next
 
-
 ```
-                Register File
-         +------------------------+
-
- rs1_0 ->|                        |-> rs1_0_data
- rs2_0 ->|                        |-> rs2_0_data
-
- rs1_1 ->|                        |-> rs1_1_data
- rs2_1 ->|                        |-> rs2_1_data
-
-         |                        |
-
- wr0 --->|                        |
- data0 ->|                        |
-
- wr1 --->|                        |
- data1 ->|                        |
-
-         +------------------------+
+                         Register File
+              +--------------------------------+
+              |                                | 
+ i_clk ------>|                                |
+ i_nrst ----->|                                |
+              |                                |
+ i_pc_next -->| R15 / PC update                |--> o_pc
+              |                                |
+              |                                |
+ i_rs1_0 ---->| Read addr slot 0 rs1           |--> o_rs1_0
+ i_rs2_0 ---->| Read addr slot 0 rs2           |--> o_rs2_0
+              |                                |
+ i_rs1_1 ---->| Read addr slot 1 rs1           |--> o_rs1_1
+ i_rs2_1 ---->| Read addr slot 1 rs2           |--> o_rs2_1
+              |                                |
+ i_write_en_0>| Commit write enable 0          |
+ i_rd_0 ----->| Commit destination 0           |
+ i_commit0_wdata --> |Commit write data 0      |
+              |                                |
+ i_write_en_1>| Commit write enable 1          |
+ i_rd_1 ----->| Commit destination 1           |
+ i_commit1_wdata --> Commit write data 1       |
+              |                                |
+              +--------------------------------+
 ```
