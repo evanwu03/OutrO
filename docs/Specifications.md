@@ -26,8 +26,8 @@ Special registers: Stack pointer (SP), Link register (LR), and PC (program count
 RAT entries: 8 (1 Valid bit + 3 bit tag)
 ALUs: 2
 CDBs: 1
-Instruction memory: 256 instructions
-Data memory: 256 words
+Instruction memory: 256 instructions (1024 bytes)
+Data memory: 256 words (1024 bytes)
 
 
 # Nice to have
@@ -111,7 +111,7 @@ The current implementation of OutrO will only focus on implementing the 16 gener
 For dual-issue CPU, the register file shall have two issue slots:
 4 read ports (2 source operands per ALU)
 2 commit write ports
-R15 stored in regfile
+R15 stored in register file
 R15 updated only by instruction fetch via i_pc_next
 
 ```

@@ -35,7 +35,6 @@ COCOTB_TEST_MODULES := test_register_file \
 
 
 VERILOG_SOURCES :=  $(wildcard $(HDL_DIR)/*.sv) \
-#	$(TB_DIR)/$(TOPLEVEL).sv \
 
 # include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim

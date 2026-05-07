@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1778112852" />
+    <testcase name="test_register_file_basic" classname="test_register_file" file="/home/evanwu03/projects/OutrO/tb/test_register_file.py" lineno="29" time="0.06552815437316895" sim_time_ns="42.0" ratio_time="640.9458713092835" />
+  </testsuite>
+</testsuites>
