@@ -89,7 +89,7 @@ def run_test(testcase, instr_count, build_dir):
     sim = os.getenv("SIM", "questa")
     proj_path = Path(__file__).resolve().parent.parent
 
-    sources = [proj_path / "hdl" / "instruction_memory.sv"]
+    sources = [proj_path / "hdl" / "instruction_fetch_unit" / "instruction_memory.sv"]
 
     runner = get_runner(sim)
 

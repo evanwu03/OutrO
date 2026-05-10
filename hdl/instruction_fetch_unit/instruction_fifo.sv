@@ -1,7 +1,7 @@
 
 module instruction_fifo #(
-    parameter DATA_WIDTH = 36,
-    parameter DEPTH = 2**4 // Power of 2
+    parameter DATA_WIDTH = 32,
+    parameter QUEUE_DEPTH = 2**4 // Power of 2
 ) (
     
     // Clock/Reset
@@ -26,15 +26,19 @@ module instruction_fifo #(
     // Status flags
     output logic o_pop_valid0,
     output logic o_pop_valid1,
+    
+    output logic o_push_valid0,
+    output logic o_push_valid1,
+
     output logic o_fifo_full,
     output logic o_fifo_empty
 );
 
-localparam PTR_WIDTH   = $clog2(DEPTH);
-localparam COUNT_WIDTH = $clog2(DEPTH + 1);
+localparam PTR_WIDTH   = $clog2(QUEUE_DEPTH);
+localparam COUNT_WIDTH = $clog2(QUEUE_DEPTH + 1);
 
-// queue with a depth of DEPTH (16 by default)
-logic [DATA_WIDTH-1:0] queue [0:DEPTH-1];
+// queue with a QUEUE_DEPTH of QUEUE_DEPTH (16 by default)
+logic [DATA_WIDTH-1:0] queue [0:QUEUE_DEPTH-1];
 
 // head/tail ptr and count
 logic [PTR_WIDTH-1:0] w_head_ptr;
@@ -57,7 +61,7 @@ always_comb begin
 
     // Determine how many free slots are open
 
-    w_free_slots = DEPTH - w_count;
+    w_free_slots = QUEUE_DEPTH - w_count;
 
     // Write acceptance 
     // TO-DO: outisde logic should ensure that instr1 can not be pushed if at the
@@ -72,7 +76,7 @@ always_comb begin
     num_reads  = rd_valid0 + rd_valid1;
 
     // Status Flags 
-    o_fifo_full = (w_count == DEPTH);
+    o_fifo_full = (w_count == QUEUE_DEPTH);
     o_fifo_empty = (w_count == 0);
     //o_fifo_empty = (w_head_ptr == w_tail_ptr);
     
@@ -83,6 +87,9 @@ always_comb begin
     // Output availability flags
     o_pop_valid0 = (w_count >=1);
     o_pop_valid1 = (w_count >=2);
+
+    o_push_valid0 = wr_valid0;
+    o_push_valid1 = wr_valid1;
 
 end
 

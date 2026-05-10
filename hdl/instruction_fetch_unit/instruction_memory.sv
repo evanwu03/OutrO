@@ -8,7 +8,7 @@ module instruction_memory #(
     parameter INSTR_WIDTH = 32,
     parameter DEPTH       = 2**8,
     parameter INSTR_COUNT = 0,
-    parameter IMEM_BASE_ADDR = 32'h0000_0000
+    parameter BASE_ADDR = 32'h0000_0000
 )(
     input  logic [INSTR_WIDTH-1:0] i_pc,
 
@@ -30,26 +30,27 @@ module instruction_memory #(
 
     logic [INSTR_WIDTH-1:0] w_local_addr;
 
-    assign w_local_addr = i_pc - IMEM_BASE_ADDR;
+    assign w_local_addr = i_pc - BASE_ADDR;
 
     assign w_word_addr_0 = w_local_addr >> 2;
     assign w_word_addr_1 = w_word_addr_0 + 1;
 
 
     assign w_addr_valid_0 =
-    (i_pc >= IMEM_BASE_ADDR) &&
+    (i_pc >= BASE_ADDR) &&
     (w_word_addr_0 < INSTR_COUNT) &&
     (i_pc[1:0] == 2'b00);
 
     assign w_addr_valid_1 =
-    (i_pc >= IMEM_BASE_ADDR) &&
+    (i_pc >= BASE_ADDR) &&
     (w_word_addr_1 < INSTR_COUNT) &&
     (i_pc[1:0] == 2'b00);
 
 
 
     initial begin
-        //$readmemh("program.hex", memory);
+        // Replace with absolute path to program
+        $readmemh("/home/evanwu03/projects/OutrO/programs/program.hex", memory);
     end
 
 

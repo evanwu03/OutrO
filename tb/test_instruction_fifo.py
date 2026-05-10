@@ -4,7 +4,6 @@
 
 import os
 from pathlib import Path
-import logging
 
 import cocotb
 from cocotb.clock import Clock
@@ -14,7 +13,7 @@ from cocotb.triggers import Timer
 
 
 DEPTH = 16
-DATA_WIDTH = 36
+DATA_WIDTH = 32
 
 
 def mask_data(x):
@@ -368,6 +367,219 @@ async def test_count_greater_than_two_pop_both_happy_path(dut):
 
 
 
+@cocotb.test()
+async def test_pop_nine_instructions_until_empty(dut):
+    """
+    Case:
+    - FIFO contains 9 instructions
+    - Pop two instructions at a time
+    - For the first 4 pops, valid0 and valid1 should both be high
+    - For the final pop, only valid0 should be high
+    - After final pop, FIFO should be empty
+    """
+
+    """
+    This checks the sequence: 
+
+    count = 9 → valid0=1, valid1=1
+    pop 2
+
+    count = 7 → valid0=1, valid1=1
+    pop 2
+
+    count = 5 → valid0=1, valid1=1
+    pop 2
+
+    count = 3 → valid0=1, valid1=1
+    pop 2
+
+    count = 1 → valid0=1, valid1=0
+    pop 1
+
+    count = 0 → valid0=0, valid1=0, empty=1
+    """
+
+    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
+    await reset_dut(dut)
+
+    expected_values = list(range(9000, 9009))
+
+    # Push 9 instructions:
+    # Push 8 using dual pushes, then 1 using single push
+    await push(dut, 1, 1, expected_values[0], expected_values[1])
+    await push(dut, 1, 1, expected_values[2], expected_values[3])
+    await push(dut, 1, 1, expected_values[4], expected_values[5])
+    await push(dut, 1, 1, expected_values[6], expected_values[7])
+    await push(dut, 1, 0, expected_values[8], 0)
+
+    # FIFO should not be empty and should have at least two valid outputs
+    assert int(dut.o_fifo_empty.value) == 0
+    assert int(dut.o_pop_valid0.value) == 1
+    assert int(dut.o_pop_valid1.value) == 1
+
+    idx = 0
+
+    # Pop while more than one instruction remains
+    while idx + 1 < len(expected_values):
+        await Timer(1, unit="ns")
+
+        assert int(dut.o_pop_valid0.value) == 1
+        assert int(dut.o_pop_valid1.value) == 1
+
+        instr0 = int(dut.o_pop_instr0.value)
+        instr1 = int(dut.o_pop_instr1.value)
+
+        dut._log.info(
+            "Popping pair: instr0=%0d instr1=%0d expected0=%0d expected1=%0d",
+            instr0,
+            instr1,
+            expected_values[idx],
+            expected_values[idx + 1],
+        )
+
+        assert instr0 == expected_values[idx]
+        assert instr1 == expected_values[idx + 1]
+
+        dut.rd_en0.value = 1
+        dut.rd_en1.value = 1
+
+        await RisingEdge(dut.i_clk)
+        await Timer(1, unit="ns")
+
+        dut.rd_en0.value = 0
+        dut.rd_en1.value = 0
+
+        idx += 2
+
+    # Now exactly one instruction should remain
+    assert idx == 8
+
+    await Timer(1, unit="ns")
+
+    assert int(dut.o_fifo_empty.value) == 0
+    assert int(dut.o_pop_valid0.value) == 1
+    assert int(dut.o_pop_valid1.value) == 0
+
+    instr0 = int(dut.o_pop_instr0.value)
+
+    dut._log.info(
+        "Popping final single instruction: instr0=%0d expected0=%0d",
+        instr0,
+        expected_values[idx],
+    )
+
+    assert instr0 == expected_values[idx]
+
+    # Request two pops anyway. FIFO should only accept one internally.
+    dut.rd_en0.value = 1
+    dut.rd_en1.value = 1
+
+    await RisingEdge(dut.i_clk)
+    await Timer(1, unit="ns")
+
+    dut.rd_en0.value = 0
+    dut.rd_en1.value = 0
+
+    # FIFO should now be empty
+    assert int(dut.o_fifo_empty.value) == 1
+    assert int(dut.o_fifo_full.value) == 0
+    assert int(dut.o_pop_valid0.value) == 0
+    assert int(dut.o_pop_valid1.value) == 0
+
+
+
+@cocotb.test()
+async def test_simultaneous_push_two_pop_two(dut):
+    """
+    Case:
+    - FIFO starts with 4 instructions: 100, 101, 102, 103
+    - In one clock cycle:
+        pop 2 instructions
+        push 2 new instructions: 200, 201
+    - Count should remain effectively the same
+    - Next visible outputs should be 102 and 103
+    - Then after another pop, outputs should be 200 and 201
+    """
+
+    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
+    await reset_dut(dut)
+
+    # Fill FIFO with 4 instructions
+    await push(dut, 1, 1, 100, 101)
+    await push(dut, 1, 1, 102, 103)
+
+    await Timer(1, unit="ns")
+
+    # Before simultaneous operation, head should show 100 and 101
+    assert int(dut.o_fifo_empty.value) == 0
+    assert int(dut.o_pop_valid0.value) == 1
+    assert int(dut.o_pop_valid1.value) == 1
+    assert int(dut.o_pop_instr0.value) == 100
+    assert int(dut.o_pop_instr1.value) == 101
+
+    # Same-cycle pop 2 and push 2
+    dut.rd_en0.value = 1
+    dut.rd_en1.value = 1
+    dut.wr_en0.value = 1
+    dut.wr_en1.value = 1
+    dut.i_push_instr0.value = 200
+    dut.i_push_instr1.value = 201
+
+    await RisingEdge(dut.i_clk)
+    await Timer(1, unit="ns")
+
+    # Deassert controls
+    dut.rd_en0.value = 0
+    dut.rd_en1.value = 0
+    dut.wr_en0.value = 0
+    dut.wr_en1.value = 0
+
+    await Timer(1, unit="ns")
+
+    # FIFO should now expose 102 and 103
+    assert int(dut.o_fifo_empty.value) == 0
+    assert int(dut.o_fifo_full.value) == 0
+    assert int(dut.o_pop_valid0.value) == 1
+    assert int(dut.o_pop_valid1.value) == 1
+    assert int(dut.o_pop_instr0.value) == 102
+    assert int(dut.o_pop_instr1.value) == 103
+
+    # Pop 102 and 103
+    dut.rd_en0.value = 1
+    dut.rd_en1.value = 1
+
+    await RisingEdge(dut.i_clk)
+    await Timer(1, unit="ns")
+
+    dut.rd_en0.value = 0
+    dut.rd_en1.value = 0
+
+    await Timer(1, unit="ns")
+
+    # FIFO should now expose newly pushed 200 and 201
+    assert int(dut.o_pop_valid0.value) == 1
+    assert int(dut.o_pop_valid1.value) == 1
+    assert int(dut.o_pop_instr0.value) == 200
+    assert int(dut.o_pop_instr1.value) == 201
+
+    # Pop 200 and 201
+    dut.rd_en0.value = 1
+    dut.rd_en1.value = 1
+
+    await RisingEdge(dut.i_clk)
+    await Timer(1, unit="ns")
+
+    dut.rd_en0.value = 0
+    dut.rd_en1.value = 0
+
+    await Timer(1, unit="ns")
+
+    # FIFO should now be empty
+    assert int(dut.o_fifo_empty.value) == 1
+    assert int(dut.o_pop_valid0.value) == 0
+    assert int(dut.o_pop_valid1.value) == 0
+
+
 def test_instr_fifo_runner():
     
     sim = os.getenv("SIM", "questa")
@@ -380,7 +592,7 @@ def test_instr_fifo_runner():
     runner.build(
         sources=sources,
         hdl_toplevel="instruction_fifo",
-        parameters={"DATA_WIDTH": 36, "DEPTH":16},
+        parameters={"DATA_WIDTH": 32, "DEPTH":16},
         build_dir="sim_build/instr_fifo_test",
         always=True,
         clean=True
@@ -390,7 +602,7 @@ def test_instr_fifo_runner():
     runner.test(
         hdl_toplevel="instruction_fifo",
         test_module="test_instruction_fifo",
-        parameters={"DATA_WIDTH": 36, "DEPTH":16},
+        parameters={"DATA_WIDTH": 32, "DEPTH":16},
         build_dir="sim_build/instr_fifo_test",
         
     )
