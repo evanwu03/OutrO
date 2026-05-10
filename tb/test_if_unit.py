@@ -12,7 +12,8 @@ from cocotb_tools.runner import get_runner
 from cocotb.triggers import Timer
 
 
-PROGRAM = [
+""" Contents of program.hex for reference"""
+""" PROGRAM = [
     0x00000000,
     0x11111111,
     0x22222222,
@@ -30,6 +31,14 @@ PROGRAM = [
     0xEEEEEEEE,
     0xFFFFFFFF
 ]
+ """
+
+PROGRAM_HEX = (Path(__file__).resolve().parent / "../programs/program.hex").resolve()
+
+with open(PROGRAM_HEX) as f:
+    PROGRAM = [int(line.strip(), 16) for line in f if line.strip()]
+
+instr_count = len(PROGRAM)
 
 
 async def reset_dut(dut):
@@ -253,7 +262,7 @@ def test_if_unit_runner():
 
     parameters = {"INSTR_WIDTH": 32, 
                     "DEPTH":256,
-                    "INSTR_COUNT":16,
+                    "INSTR_COUNT":instr_count,
                     "BASE_ADDR": 0x0000}
     runner.build(
         sources=sources,
