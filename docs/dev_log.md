@@ -51,3 +51,27 @@ Alternatively you must develop logic to handle 2 or more instructions at once an
 - After some weird glitches with the reset() function throwing off the instruction fetch logic by one cycle during testing, 
 I am much more confident it fetches as intended. Learned a good deal about creating a multi-port FIFO. Suprisingly not too different than a single-port FIFO, just need extra logic to ensure you never write to a full FIFO or read from an empty FIFO.
 
+### Decoder
+- Now is about time that I define the decode stage of the processor. Compared to my first CPU where
+I primarily relied on long list of outputs for every single action that should be taken based on the instruction type, I am using a packet struct to simplify the ports significantly. 
+
+### Understanding the pipeline 
+- Somtimes I feel like I have some trouble wrapping my head, not really just about what each block does but about how what happens on the data boundary, so I asked Chatgpt to help summarize each stage in the pipeline.
+- 
+Instruction fetch:
+  cares about PC, instruction bits, valid, FIFO ordering
+
+Decode:
+  cares about interpreting raw bits
+
+Rename/dispatch:
+  cares about architectural registers, RAT, ROB tags, dependencies
+
+Reservation station:
+  cares about operand readiness, operand values, tags, operation type
+
+ROB:
+  cares about program order, destination register, result readiness, commit
+
+CDB:
+  cares about broadcasting completed tag + value

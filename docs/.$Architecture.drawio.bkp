@@ -1,10 +1,10 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5" pages="2">
-  <diagram name="Page-1" id="3OZrm_XWKrv1jNGhhBHV">
-    <mxGraphModel dx="1943" dy="2476" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5" pages="3">
+  <diagram name="System Overview" id="3OZrm_XWKrv1jNGhhBHV">
+    <mxGraphModel dx="1360" dy="2063" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="04PdLAS7EF0xPrCBdo8V-1" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="04PdLAS7EF0xPrCBdo8V-1" value="" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="580" y="-150" width="220" height="210" as="geometry" />
         </mxCell>
         <mxCell id="wahnUMTHqwosFIZaHid8-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="wahnUMTHqwosFIZaHid8-1" target="wahnUMTHqwosFIZaHid8-3" edge="1">
@@ -229,14 +229,14 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="04PdLAS7EF0xPrCBdo8V-2" value="Instruction Fetch Unit&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+        <mxCell id="04PdLAS7EF0xPrCBdo8V-2" value="Instruction Fetch Unit&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="650" y="-150" width="140" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram id="IhZ8FXMePbO2aQ7GekOl" name="Instruction Fetch">
-    <mxGraphModel dx="2210" dy="963" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1983" dy="803" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -484,6 +484,60 @@
           <mxGeometry x="-0.2259" y="1" relative="1" as="geometry">
             <mxPoint x="8" y="-9" as="offset" />
           </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="UNPPrMDFQX0-8HKzQQhd" name="Page-3">
+    <mxGraphModel dx="1360" dy="963" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-1" value="" style="rounded=1;whiteSpace=wrap;html=1;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" vertex="1" parent="1">
+          <mxGeometry x="180" y="280" width="430" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-2" value="Dispatch/Rename&amp;nbsp; Stage" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="145" y="250" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="IKoX6PBXJWYlR6KQhjJy-3" target="IKoX6PBXJWYlR6KQhjJy-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-3" value="decoded_opt_t" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="470" as="targetPoint" />
+            <mxPoint x="370" y="470" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-5" value="rs_entry_t" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="IKoX6PBXJWYlR6KQhjJy-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="475" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1" source="IKoX6PBXJWYlR6KQhjJy-9" target="IKoX6PBXJWYlR6KQhjJy-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-15" value="Does the RS have a free entry?" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="IKoX6PBXJWYlR6KQhjJy-14">
+          <mxGeometry x="0.04" y="-2" relative="1" as="geometry">
+            <mxPoint x="7" y="-33" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-9" value="Reservation station" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="IKoX6PBXJWYlR6KQhjJy-10" target="IKoX6PBXJWYlR6KQhjJy-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-10" value="ROB" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="425" y="190" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="IKoX6PBXJWYlR6KQhjJy-12" value="Does the ROB have a free entry?" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="320" y="330" width="200" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
