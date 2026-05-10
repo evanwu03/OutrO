@@ -65,7 +65,7 @@ module instruction_fetch_unit #(
     // 2. Push instructions to instruction FIFO
     instruction_fifo #(
         .DATA_WIDTH(INSTR_WIDTH),
-        .QUEUE_DEPTH(2**4) // Power of 2
+        .QUEUE_DEPTH(2**5) // Power of 2
     )
     instr_queue (
         // Clock/Reset
