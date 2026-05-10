@@ -45,3 +45,9 @@ Two different approaches have been used to issue multiple instructions per clock
 ``` 
 
 Alternatively you must develop logic to handle 2 or more instructions at once and handle dependencies between those instructions. 
+
+
+### Instruction Fetch Unit updates
+- After some weird glitches with the reset() function throwing off the instruction fetch logic by one cycle during testing, 
+I am much more confident it fetches as intended. Learned a good deal about creating a multi-port FIFO. Suprisingly not too different than a single-port FIFO, just need extra logic to ensure you never write to a full FIFO or read from an empty FIFO.
+

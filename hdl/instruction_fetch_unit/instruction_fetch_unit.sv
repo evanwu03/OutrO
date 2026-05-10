@@ -103,8 +103,8 @@ module instruction_fetch_unit #(
     assign fetch_valid0 = ((i_pc - BASE_ADDR) >> 2) < INSTR_COUNT;
     assign fetch_valid1 = (((i_pc - BASE_ADDR) >> 2) + 1) < INSTR_COUNT;
 
-    assign wr_en0 = !w_fifo_full && fetch_valid0;
-    assign wr_en1 = !w_fifo_full && fetch_valid1;
+    assign wr_en0 = fetch_valid0;
+    assign wr_en1 = fetch_valid1;
     assign rd_en0 = !i_instr_stall && w_pop_valid0;
     assign rd_en1 = !i_instr_stall && w_pop_valid1;
 
@@ -115,19 +115,7 @@ module instruction_fetch_unit #(
     assign w_num_fetch_accepted = w_push_valid0 + w_push_valid1;
 
 
-    /* always_ff @(posedge i_clk or negedge i_nrst) begin
-        if (!i_nrst) begin
-            o_pc_next <= BASE_ADDR;
-        end
-        else begin   
-            case (w_num_fetch_accepted)
-                2'd2: o_pc_next <= i_pc + 32'd8;
-                2'd1: o_pc_next <= i_pc + 32'd4;
-                default: o_pc_next <= i_pc;
-            endcase 
-        end
-    end */
-
+    // Update pc depending on number of instructions pushed
     always_comb begin
         case (w_num_fetch_accepted)
             2'd2: o_pc_next = i_pc + 32'd8;
