@@ -10,16 +10,15 @@ package cpu_pkg;
         ARM_TEQ = 4'b1001,
         ARM_MVN = 4'b1111
         
-    } opcode_t;
+    } opcode_e;
 
     
-    typedef enum logic [2:0] {
-        OP_INVALID = 3'd0,
-        OP_ALU     = 3'd1,
-        OP_LOAD    = 3'd2,
-        OP_STORE   = 3'd3,
-        OP_BRANCH  = 3'd4
-    } op_class_t;
+    typedef enum logic [1:0] {
+        CLASS_ALU     = 2'b00,
+        CLASS_MEM     = 2'b01,
+        CLASS_BRANCH  = 2'b10,
+        CLASS_OTHER   = 2'b11 // To support co-processors operations and software interrupts in the future
+    } instr_class_e;
 
     typedef struct packed {
         // Packet status
@@ -31,8 +30,7 @@ package cpu_pkg;
 
         // Common ARM fields
         logic [3:0]  cond;
-        logic [1:0]  instr_class;   // Raw instr[27:26]
-        op_class_t   op_class;      // Normalized semantic class
+        instr_class_e   instr_class;      // Normalized semantic class
 
         // Register fields from ARM encoding
         logic [3:0]  rn;            // Base reg / first operand
@@ -40,7 +38,7 @@ package cpu_pkg;
         logic [3:0]  rd;            // Dest reg, or store-data reg for STR
 
         // Normalized dependency info for OoO backend
-        logic [3:0]  src1_arch;
+        /* logic [3:0]  src1_arch;
         logic [3:0]  src2_arch;
         logic [3:0]  dst_arch;
         logic [3:0]  store_data_arch;
@@ -49,9 +47,11 @@ package cpu_pkg;
         logic        uses_src2;
         logic        uses_store_data;
         logic        writes_dst;
+        */
+
 
         // Data processing
-        opcode_t     opcode;
+        opcode_e     alu_opcode;
         logic        set_cond;
         logic        uses_imm;
         logic [11:0] op2;           // Raw Operand2, useful for debug/shift decode

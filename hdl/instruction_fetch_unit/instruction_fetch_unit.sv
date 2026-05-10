@@ -2,6 +2,9 @@
 
 // Description: Instruction fetch unit reads the next two instructions given the current PC value and 
 // and enqueues instructions to instruction queue. These instructions will then be pushed to the issue/dispatch unit
+// Author: Evan Wu
+// Date: 5/10/2026
+
 
 module instruction_fetch_unit #(
     parameter INSTR_WIDTH = 32,

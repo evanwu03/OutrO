@@ -57,7 +57,7 @@ I primarily relied on long list of outputs for every single action that should b
 
 ### Understanding the pipeline 
 - Somtimes I feel like I have some trouble wrapping my head, not really just about what each block does but about how what happens on the data boundary, so I asked Chatgpt to help summarize each stage in the pipeline.
-- 
+  
 Instruction fetch:
   cares about PC, instruction bits, valid, FIFO ordering
 
