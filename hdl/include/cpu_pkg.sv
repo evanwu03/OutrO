@@ -25,11 +25,11 @@ package cpu_pkg;
         logic        valid;
 
         // Useful for ROB / branch recovery / debugging
-        logic [31:0] pc;
-        logic [31:0] raw_instr;
+        //logic [31:0] pc;
+        //logic [31:0] raw_instr;
 
         // Common ARM fields
-        logic [3:0]  cond;
+        logic [3:0]  cond;                // TO-DO add condition field semantics
         instr_class_e   instr_class;      // Normalized semantic class
 
         // Register fields from ARM encoding
@@ -55,22 +55,18 @@ package cpu_pkg;
         logic        set_cond;
         logic        uses_imm;
         logic [11:0] op2;           // Raw Operand2, useful for debug/shift decode
-
-        // Decoded immediate / offset / branch displacement
-        logic [31:0] imm_value;
+        logic [23:0] offset;
 
         // Single data transfer: LDR / STR
         logic        pre_index;     // P bit
-        logic        add_offset;    // U bit
-        logic        byte_transfer; // B bit
+        logic        offset_dir;    // U bit
+        logic        is_byte;       // B bit
         logic        write_back;    // W bit
-
-        logic        mem_read;
-        logic        mem_write;
+        logic        is_load;       // L bit
 
         // Branch / branch with link
         logic        is_branch;
-        logic        link;
+        logic        is_link;
 
     } decoded_op_t;
 
