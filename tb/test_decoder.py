@@ -6,8 +6,6 @@ import os
 from pathlib import Path
 
 import cocotb
-from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge
 from cocotb_tools.runner import get_runner
 from cocotb.triggers import Timer
 
@@ -167,7 +165,7 @@ async def drive_and_check_data_proc(
         operand2=operand2,
     )
 
-    
+
     dut.i_instr.value = instr
 
     await Timer(1, unit="ns")
