@@ -124,21 +124,28 @@ module  dispatch_unit
 
                     
                     if(i_decoded.is_load) begin
-                        o_rs_entry = RS_LOAD;
+                        o_rs_entry.op = RS_LOAD;
+                        o_rob_entry.instr_type = ROB_REG;
+                        o_dest_arch = i_decoded.rd;
+                        o_rename_valid = 1'b1;
+                        
                     end else begin
-                        o_rs_entry = RS_STORE;
+                        o_rs_entry.op          = RS_STORE;
+                        o_rob_entry.instr_type = ROB_STORE;
                     end
                     
                     o_src0_arch = i_decoded.rn;
-                    o_rename_valid = 1'b1;
-                    o_dest_arch = i_decoded.rd;
-                    o_rob_entry.instr_type = ROB_STORE;
 
+                    if(i_decoded.use_imm) begin
+                        o_src1_arch = i_decoded.rm;
+                    end
 
+                    
+                    
                 
                 end
 
-                CLASS_BRANCH: begin
+                CLASS_BRANCH: begin 
 
                     if (i_decoded.is_link) begin
                         o_rs_entry.op = RS_BRANCH_LINK;
@@ -147,7 +154,7 @@ module  dispatch_unit
                     end
 
 
-
+                    o_rob_entry.instr_type = ROB_BRANCH;
 
                     
                 end

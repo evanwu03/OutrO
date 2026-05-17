@@ -22,6 +22,7 @@ module decoder
     logic        w_set_cond;
     logic [3:0]  w_rn;
     logic [3:0]  w_rd;
+    logic [3:0]  w_rm;
     logic [11:0] w_op2;
 
 
@@ -50,6 +51,7 @@ module decoder
         w_uses_imm    = i_instr[25];
         w_rn          = i_instr[19:16];
         w_rd          = i_instr[15:12];
+        w_rm          = i_instr[3:0];
 
         decoded.cond = w_cond;
 
@@ -63,8 +65,13 @@ module decoder
                 decoded.instr_class = CLASS_ALU;   
                 decoded.uses_imm    = w_uses_imm;    // I-bit  
                 decoded.set_cond    = w_set_cond;      // S-bit
-                decoded.rn          = w_rn;   // rn 
-                decoded.rd          = w_rd;   // rd
+                decoded.rn          = w_rn;     // rn 
+                decoded.rd          = w_rd;     // rd
+                
+                if (!decoded.uses_imm) begin
+                    decoded.rm      = w_rm;     // rm
+                end
+
                 decoded.op2         = w_op2;    // Operand 2
                 
                 w_alu_opcode  = i_instr[24:21]; // Extract OP code 
@@ -103,12 +110,19 @@ module decoder
                 decoded.is_load     = w_is_load;    // L-bit
                 decoded.rn          = w_rn;         // rn 
                 decoded.rd          = w_rd;         // rd
-                decoded.offset      = w_offset;        // Operand 2
+
+                if (decoded.uses_imm) begin
+                    decoded.rm      = w_rm;         // rm
+                end else begin
+                    decoded.offset      = w_offset;  // offset   
+                end
+
+                
 
             end
 
             CLASS_BRANCH: begin // Branch instructions
-             
+
                 w_is_link   = i_instr[24];
                 w_offset    = i_instr[23:0];
 

@@ -49,8 +49,8 @@ package cpu_pkg;
 
         // Data processing
         opcode_e     alu_opcode;
-        logic        set_cond;
-        logic        uses_imm;
+        logic        set_cond;      // CPSR condition fields
+        logic        uses_imm;      // I bit in data processing or LDR/ST
         logic [11:0] op2;           // Raw Operand2, useful for debug/shift decode
         logic [23:0] offset;
 
