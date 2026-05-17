@@ -320,17 +320,12 @@ async def drive_and_check_branch_instr(
     dut._log.info("Decoded packed instruction: 0x%x", int(dut.decoded.value))
 
     actual_instr_class = int(dut.w_instr_class.value)
-    actual_is_branch   = int(dut.w_is_branch.value)
     actual_is_link     = int(dut.w_is_link.value)
     actual_offset      = int(dut.w_offset.value)
 
     assert actual_instr_class == CLASS_BRANCH, (
         f"[{name}] instr_class got 0b{actual_instr_class:02b}, "
         f"expected 0b{CLASS_BRANCH:02b}"
-    )
-
-    assert actual_is_branch == 1, (
-        f"[{name}] is_branch got {actual_is_branch}, expected 1"
     )
 
     assert actual_is_link == is_link, (

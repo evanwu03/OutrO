@@ -35,7 +35,7 @@ module decoder
     logic [23:0] w_offset;
 
     // Branch
-    logic w_is_branch;
+    //logic w_is_branch;
     logic w_is_link;
 
     always_comb begin : decode_packet
@@ -108,13 +108,12 @@ module decoder
             end
 
             CLASS_BRANCH: begin // Branch instructions
-
-                w_is_branch = 1'b1; 
+             
                 w_is_link   = i_instr[24];
                 w_offset    = i_instr[23:0];
 
                 decoded.instr_class = CLASS_BRANCH;
-                decoded.is_branch   = w_is_branch;
+                decoded.is_branch   = 1'b1;;
                 decoded.is_link     = w_is_link;
                 decoded.offset      = w_offset;
             end

@@ -54,7 +54,11 @@ Data memory: 256 words (1024 bytes)
 
 
 # Instruction Set (ARM7TDMI-S)
-The following table describes the instructions from the ARM7TDMI-S processor instruction set that are currently implemented in OutrO.
+The following table describes the instructions from the if [ "$#" -eq 0 ]; then
+    echo "Error: no test selection provided."
+    echo "Usage: $0 {decoder|instr_mem|instr_queue|all|pytest_args...}"
+    exit 1
+fi processor instruction set that are currently implemented in OutrO.
 Note that the  ARM7TDMI-S Architecture is used as an inspiration but will not be strictly followed as ARM7TDMI-S is implemented as a 3-stage pipeline with 
 Von Neumann memory model.
 
