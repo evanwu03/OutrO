@@ -68,11 +68,15 @@ module decoder
                 decoded.rn          = w_rn;     // rn 
                 decoded.rd          = w_rd;     // rd
                 
-                if (!decoded.uses_imm) begin
+                if (decoded.uses_imm) begin
+                    w_offset        = {32'b0, i_instr[7:0]};
+                    decoded.offset  = w_offset;
+                end else begin
                     decoded.rm      = w_rm;     // rm
                 end
 
-                decoded.op2         = w_op2;    // Operand 2
+                decoded.op2         = w_op2;    // Operand 2 
+                
                 
                 w_alu_opcode  = i_instr[24:21]; // Extract OP code 
 
@@ -93,12 +97,12 @@ module decoder
 
             CLASS_MEM: begin // Data memory instructions
 
-                w_pre_index   = i_instr[24];
+                w_pre_index  = i_instr[24];
                 w_offset_dir = i_instr[23];
                 w_is_byte    = i_instr[22];
                 w_writeback  = i_instr[21];
                 w_is_load    = i_instr[20]; 
-                w_offset     = {12'b0, i_instr[11:0]};
+                w_offset     = {32'b0, i_instr[11:0]};
 
 
                 decoded.instr_class = CLASS_MEM;  
@@ -114,7 +118,7 @@ module decoder
                 if (decoded.uses_imm) begin
                     decoded.rm      = w_rm;         // rm
                 end else begin
-                    decoded.offset      = w_offset;  // offset   
+                    decoded.offset  = w_offset;  // offset   
                 end
 
                 

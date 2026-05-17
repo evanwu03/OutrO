@@ -1,6 +1,8 @@
 
 package cpu_pkg;
 
+    // Data width
+    parameter int DATA_WIDTH = 32;
 
     // Architectural register types
     parameter int ARCH_REG_COUNT = 16;
@@ -50,9 +52,11 @@ package cpu_pkg;
         // Data processing
         opcode_e     alu_opcode;
         logic        set_cond;      // CPSR condition fields
-        logic        uses_imm;      // I bit in data processing or LDR/ST
+        logic        uses_imm;      // I bit in data processing or LDR/STR 
+                                    // I-bit logic backwards in LDR/STR, should we rename this field?
+                                    
         logic [11:0] op2;           // Raw Operand2, useful for debug/shift decode
-        logic [23:0] offset;
+        logic [31:0] offset;        // all immediates get extended to 32 bits
 
         // Single data transfer: LDR / STR
         logic        pre_index;     // P bit

@@ -34,6 +34,9 @@ case "$1" in
         run_pytest test_if_unit.py
         ;;
 
+    dispatch) 
+        run_pytest test_dispatch.py
+        ;;
     *)
         run_pytest "$@"
         ;;
