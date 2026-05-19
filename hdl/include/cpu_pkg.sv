@@ -11,7 +11,13 @@ package cpu_pkg;
     typedef logic [ARCH_REG_WIDTH-1:0] arch_reg_t;
 
 
-
+    // Register file
+    // R0-R13: General purpose registers
+    // R15: Program Counter register
+    // R14: Link Register
+    parameter logic [ARCH_REG_WIDTH-1:0] ARCH_PC = 4'd15;
+    parameter logic [ARCH_REG_WIDTH-1:0] ARCH_LR = 4'd14;
+ 
     // Instruction types
     typedef enum logic [3:0] {  
         ARM_AND = 4'b0000,
@@ -147,6 +153,11 @@ package cpu_pkg;
 
     } rs_entry_t;
 
+
+    typedef struct packed {
+        logic     valid; // 1 = register is named to a pending ROB entry
+        rob_tag_t tag;   // ROB entry that will produce the newest src/dest operand
+    } rat_entry_t;
 
     
 endpackage : cpu_pkg

@@ -13,7 +13,7 @@ run_pytest () {
 
 if [ "$#" -eq 0 ]; then
     echo "Error: no test selection provided."
-    echo "Usage: $0 {decoder|instr_mem|instr_queue|all|pytest_args...}"
+    echo "Usage: $0 {decoder|instr_mem|instr_queue|pytest_args...}"
     exit 1
 fi
 
@@ -36,6 +36,10 @@ case "$1" in
 
     dispatch) 
         run_pytest test_dispatch.py
+        ;;
+
+    rat) 
+        run_pytest test_rat.py
         ;;
     *)
         run_pytest "$@"

@@ -41,8 +41,6 @@ module  dispatch_unit
     // Allocated RS and ROB entry
     output rs_entry_t   o_rs_entry,
     output rob_entry_t  o_rob_entry
-
-
 );
     
 // Dispatch Procedure: 

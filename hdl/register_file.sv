@@ -3,7 +3,9 @@
 // Author: Evan Wu
 // Date revised: 5/6/2026
 
-module register_file  #(
+module register_file  
+    import cpu_pkg::*;
+#(
     parameter NUM_REGS = 16,
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = $clog2(NUM_REGS)
@@ -56,12 +58,6 @@ module register_file  #(
 );
 
 
-// R0-R13: General purpose registers
-// R15: Program Counter register
-// R14: Link Register
-localparam logic [ADDR_WIDTH-1:0] PC_REG = 4'd15;
-localparam logic [ADDR_WIDTH-1:0] LR_REG = 4'd14;
-
 // Instantiate register file
 logic [DATA_WIDTH-1:0] r_regs [0:NUM_REGS-1];
 
@@ -90,11 +86,11 @@ always_ff @(posedge i_clk or negedge i_nrst) begin : sync_write
         end else begin
 
             // Should only write to R0-R14
-            if (i_write_en_0 && (i_rd_0 != PC_REG)) begin
+            if (i_write_en_0 && (i_rd_0 != ARCH_PC)) begin
                 r_regs[i_rd_0] <= i_commit0_wdata;
             end
 
-            if (i_write_en_1 && (i_rd_1 != PC_REG)) begin
+            if (i_write_en_1 && (i_rd_1 != ARCH_PC)) begin
                 r_regs[i_rd_1] <= i_commit1_wdata;
             end
 
