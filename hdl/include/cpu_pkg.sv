@@ -154,10 +154,21 @@ package cpu_pkg;
     } rs_entry_t;
 
 
+    // RAT entry
     typedef struct packed {
         logic     valid; // 1 = register is named to a pending ROB entry
         rob_tag_t tag;   // ROB entry that will produce the newest src/dest operand
     } rat_entry_t;
 
+
+
+    // Common data bus types
+    typedef struct packed {
+        logic valid;
+        rob_tag_t tag;
+        logic [31:0] data;
+    } cdb_packet_t;
+
+    
     
 endpackage : cpu_pkg

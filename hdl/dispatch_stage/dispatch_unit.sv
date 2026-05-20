@@ -40,7 +40,10 @@ module  dispatch_unit
 
     // Allocated RS and ROB entry
     output rs_entry_t   o_rs_entry,
-    output rob_entry_t  o_rob_entry
+    output rob_entry_t  o_rob_entry,
+
+    // Status
+    output logic o_dispatch_ready
 );
     
 // Dispatch Procedure: 
@@ -87,7 +90,8 @@ module  dispatch_unit
     // encoded instruction must also be valid to proceed
     assign w_dispatch_en = w_dispatch_ready && i_decoded.valid;
 
-
+    // Valid signal --> RS
+    assign o_dispatch_ready = w_dispatch_en;
 
     always_comb begin : dispatch
 
@@ -249,7 +253,7 @@ module  dispatch_unit
 
             // RS entry is now dispatched and busy
             o_rs_entry.rob_tag = i_rob_tag;
-            o_rs_entry.busy = 1'b1;
+            //o_rs_entry.busy = 1'b1; This is to be set by RS instead
     
         end
     end

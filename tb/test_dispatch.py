@@ -451,7 +451,7 @@ async def test_add_reg_reg_no_rat_dependencies(dut):
     assert int(dut.o_src1_arch.value) == RM
 
     # RS entry
-    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 1
+    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 0
     assert get_packed_field(dut.o_rs_entry, RS_OP_HI, RS_OP_LO) == RS_ADD
     assert get_packed_field(dut.o_rs_entry, RS_ROB_TAG_HI, RS_ROB_TAG_LO) == ROB_TAG
 
@@ -518,7 +518,7 @@ async def test_add_reg_reg_src0_waits_on_rat(dut):
     assert int(dut.o_src1_arch.value) == RM
 
     # RS entry basics
-    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 1
+    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 0
     assert get_packed_field(dut.o_rs_entry, RS_OP_HI, RS_OP_LO) == RS_ADD
     assert get_packed_field(dut.o_rs_entry, RS_ROB_TAG_HI, RS_ROB_TAG_LO) == ROB_TAG
 
@@ -579,7 +579,7 @@ async def test_add_immediate_uses_offset_as_src1_value(dut):
     assert int(dut.o_src0_arch.value) == RN
     assert int(dut.o_dest_arch.value) == RD
 
-    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 1
+    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 0
     assert get_packed_field(dut.o_rs_entry, RS_OP_HI, RS_OP_LO) == RS_ADD
     assert get_packed_field(dut.o_rs_entry, RS_ROB_TAG_HI, RS_ROB_TAG_LO) == ROB_TAG
 
@@ -625,7 +625,7 @@ async def test_load_dispatch(dut):
 
     assert int(dut.o_src0_arch.value) == RN
 
-    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 1
+    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 0
     assert get_packed_field(dut.o_rs_entry, RS_OP_HI, RS_OP_LO) == RS_LOAD
     assert get_packed_field(dut.o_rs_entry, RS_ROB_TAG_HI, RS_ROB_TAG_LO) == ROB_TAG
 
@@ -671,7 +671,7 @@ async def test_store_dispatch_does_not_rename(dut):
 
     assert int(dut.o_src0_arch.value) == RN
 
-    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 1
+    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 0
     assert get_packed_field(dut.o_rs_entry, RS_OP_HI, RS_OP_LO) == RS_STORE
     assert get_packed_field(dut.o_rs_entry, RS_ROB_TAG_HI, RS_ROB_TAG_LO) == ROB_TAG
 
@@ -703,7 +703,7 @@ async def test_branch_dispatch(dut):
 
     await Timer(1, unit="ns")
 
-    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 1
+    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 0
     assert get_packed_field(dut.o_rs_entry, RS_OP_HI, RS_OP_LO) == RS_BRANCH
     assert get_packed_field(dut.o_rs_entry, RS_ROB_TAG_HI, RS_ROB_TAG_LO) == ROB_TAG
 
@@ -736,7 +736,7 @@ async def test_branch_link_dispatch(dut):
 
     await Timer(1, unit="ns")
 
-    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 1
+    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 0
     assert get_packed_field(dut.o_rs_entry, RS_OP_HI, RS_OP_LO) == RS_BRANCH_LINK
     assert get_packed_field(dut.o_rs_entry, RS_ROB_TAG_HI, RS_ROB_TAG_LO) == ROB_TAG
 
@@ -789,7 +789,7 @@ async def test_add_immediate_src0_waits_on_rat(dut):
     assert int(dut.o_dest_arch.value) == RD
 
     # RS entry basics
-    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 1
+    assert get_packed_field(dut.o_rs_entry, RS_BUSY_BIT) == 0
     assert get_packed_field(dut.o_rs_entry, RS_OP_HI, RS_OP_LO) == RS_ADD
     assert get_packed_field(dut.o_rs_entry, RS_ROB_TAG_HI, RS_ROB_TAG_LO) == ROB_TAG
 

@@ -6,7 +6,7 @@
 module rat  
     import cpu_pkg::*;
 #( 
-    parameter int NUM_ENTRIES=16
+    parameter int RAT_DEPTH=16
 )
 (
     input logic i_clk,
@@ -39,10 +39,10 @@ module rat
 );
 
 
-localparam RAT_WIDTH = $clog2(NUM_ENTRIES);
+localparam RAT_WIDTH = $clog2(RAT_DEPTH);
 
 // Define RAT 
-rat_entry_t rat [0:NUM_ENTRIES-1];
+rat_entry_t rat [0:RAT_DEPTH-1];
 
 
 // Combinational lookup
@@ -55,7 +55,7 @@ assign o_src1_rat_tag   = rat[i_src1_arch].tag;
 // Sequential rename/update
 always_ff @(posedge i_clk or negedge i_nrst) begin
     if (!i_nrst) begin
-        for (int i = 0; i < NUM_ENTRIES; i++) begin
+        for (int i = 0; i < RAT_DEPTH; i++) begin
             rat[i].valid <= 1'b0;
             rat[i].tag   <= '0;
         end
