@@ -42,8 +42,8 @@ package cpu_pkg;
         logic        valid;
 
         // Useful for ROB / branch recovery / debugging
-        //logic [31:0] pc;
-        //logic [31:0] raw_instr;
+        //logic [DATA_WIDTH-1:0] pc;
+        //logic [DATA_WIDTH-1:0] raw_instr;
 
         // Common ARM fields
         logic [3:0]  cond;                // TO-DO add condition field semantics
@@ -62,7 +62,7 @@ package cpu_pkg;
                                     // I-bit logic backwards in LDR/STR, should we rename this field?
                                     
         logic [11:0] op2;           // Raw Operand2, useful for debug/shift decode
-        logic [31:0] offset;        // all immediates get extended to 32 bits
+        logic [DATA_WIDTH-1:0] offset;        // all immediates get extended to 32 bits
 
         // Single data transfer: LDR / STR
         logic        pre_index;     // P bit
@@ -98,7 +98,7 @@ package cpu_pkg;
     typedef struct packed {
         rob_instr_e instr_type;
         arch_reg_t dest_arch_reg; 
-        logic [31:0] value;
+        logic [DATA_WIDTH-1:0] value;
         logic ready; 
     } rob_entry_t;
 
@@ -135,20 +135,20 @@ package cpu_pkg;
         // Reservations that produce source operand, 0 means operation is already available or is unused
         
         logic src0_ready;
-        logic [31:0] src0_value;
+        logic [DATA_WIDTH-1:0] src0_value;
         rob_tag_t src0_tag;
         
         
         logic src1_ready;
-        logic [31:0] src1_value;
+        logic [DATA_WIDTH-1:0] src1_value;
         rob_tag_t src1_tag;
         
         // ROB entry that result placed on CDB corresponds to
-        rob_tag_t rob_tag;
+        rob_tag_t rob_tag; // rename to dest_tag?
 
 
         // Address for Load/Store instructions
-        logic [31:0] address;
+        logic [DATA_WIDTH-1:0] address;
         
 
     } rs_entry_t;
@@ -166,7 +166,7 @@ package cpu_pkg;
     typedef struct packed {
         logic valid;
         rob_tag_t tag;
-        logic [31:0] data;
+        logic [DATA_WIDTH-1:0] data;
     } cdb_packet_t;
 
     

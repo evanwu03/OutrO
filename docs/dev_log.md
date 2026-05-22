@@ -75,3 +75,18 @@ ROB:
 
 CDB:
   cares about broadcasting completed tag + value
+
+
+## 5/20/2026
+Up to this point I've completed the following: 
+- Instruction fetch unit
+- Instruction decoder
+- Register Alias Table (RAT)
+- Dispatch unit
+- Reservation stations
+
+Today I will focus on writing tests for the reservation station 
+and refactoring existing tests, so they are easier to modify 
+and share standard helper functions.
+
+## 5/21/2026
