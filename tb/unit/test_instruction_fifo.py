@@ -6,23 +6,26 @@ import os
 from pathlib import Path
 
 import cocotb
-from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
 from cocotb_tools.runner import get_runner
 from cocotb.triggers import Timer
 
-
-DEPTH = 16
-DATA_WIDTH = 32
-
-
-def mask_data(x):
-    return x & ((1 << DATA_WIDTH) - 1)
+from ..drivers.instr_fifo_driver import push
+from ..drivers.instr_fifo_driver import push_values
+from ..drivers.instr_fifo_driver import pop_n_and_check
+from ..drivers.instr_fifo_driver import pop_request
+from ..drivers.instr_fifo_driver import fill_fifo_with_n
 
 
-async def reset_dut(dut):
+from ..common.clock_reset import start_clock
+from ..common.clock_reset import reset_dut
+
+# Globals
+from ..common.config import INSTRUCTION_FIFO_DEPTH, DATA_WIDTH
+
+
+async def setup_fifo(dut): 
     dut.i_nrst.value = 0
-
     dut.wr_en0.value = 0
     dut.wr_en1.value = 0
     dut.rd_en0.value = 0
@@ -31,98 +34,7 @@ async def reset_dut(dut):
     dut.i_push_instr0.value = 0
     dut.i_push_instr1.value = 0
 
-    await RisingEdge(dut.i_clk)
-    await RisingEdge(dut.i_clk)
 
-    dut.i_nrst.value = 1
-    await RisingEdge(dut.i_clk)
-    await Timer(1, unit="ns")
-
-
-async def push(dut, wr0, wr1, instr0=0, instr1=0):
-    dut.wr_en0.value = int(wr0)
-    dut.wr_en1.value = int(wr1)
-    dut.rd_en0.value = 0
-    dut.rd_en1.value = 0
-
-    dut.i_push_instr0.value = mask_data(instr0)
-    dut.i_push_instr1.value = mask_data(instr1)
-
-    await RisingEdge(dut.i_clk)
-    await Timer(1, unit="ns")
-
-    dut.wr_en0.value = 0
-    dut.wr_en1.value = 0
-
-
-async def pop_request(dut, rd0=True, rd1=True):
-    """
-    Samples FIFO output before the clock edge that performs the pop.
-    Then advances one cycle.
-    """
-    dut.wr_en0.value = 0
-    dut.wr_en1.value = 0
-    dut.rd_en0.value = int(rd0)
-    dut.rd_en1.value = int(rd1)
-
-    await Timer(1, unit="ns")
-
-    valid0 = int(dut.o_pop_valid0.value)
-    valid1 = int(dut.o_pop_valid1.value)
-
-    instr0 = int(dut.o_pop_instr0.value) if valid0 else None
-    instr1 = int(dut.o_pop_instr1.value) if valid1 else None
-    
-    await RisingEdge(dut.i_clk)
-    await Timer(1, unit="ns")
-
-    dut.rd_en0.value = 0
-    dut.rd_en1.value = 0
-
-    return valid0, valid1, instr0, instr1
-
-
-async def fill_fifo_with_n(dut, n):
-    """
-    Fill FIFO with instruction values 0, 1, 2, ...
-    """
-    value = 0
-
-    while value < n:
-        remaining = n - value
-
-        if remaining >= 2:
-            await push(dut, 1, 1, value, value + 1)
-            value += 2
-        else:
-            await push(dut, 1, 0, value, 0)
-            value += 1
-
-
-async def pop_n_and_check(dut, expected_values):
-    idx = 0
-
-    while idx < len(expected_values):
-        remaining = len(expected_values) - idx
-
-        if remaining >= 2:
-            valid0, valid1, instr0, instr1 = await pop_request(dut, True, True)
-
-            assert valid0 == 1
-            assert valid1 == 1
-            assert instr0 == expected_values[idx]
-            assert instr1 == expected_values[idx + 1]
-
-            idx += 2
-
-        else:
-            valid0, valid1, instr0, instr1 = await pop_request(dut, True, True)
-
-            assert valid0 == 1
-            assert valid1 == 0
-            assert instr0 == expected_values[idx]
-
-            idx += 1
 
 
 @cocotb.test()
@@ -133,10 +45,18 @@ async def test_full_fifo_attempt_push_two(dut):
     - attempt to push two instructions
     - both should be rejected
     """
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
 
-    await fill_fifo_with_n(dut, DEPTH)
+
+    clk = dut.i_clk
+    rst = dut.i_nrst
+
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
+
+    await fill_fifo_with_n(dut, INSTRUCTION_FIFO_DEPTH)
 
     assert int(dut.o_fifo_full.value) == 1
     assert int(dut.o_fifo_empty.value) == 0
@@ -147,7 +67,7 @@ async def test_full_fifo_attempt_push_two(dut):
     assert int(dut.o_fifo_full.value) == 1
 
     # Pop all entries and make sure only original entries are present.
-    await pop_n_and_check(dut, list(range(DEPTH)))
+    await pop_n_and_check(dut, list(range(INSTRUCTION_FIFO_DEPTH)))
 
     assert int(dut.o_fifo_empty.value) == 1
 
@@ -161,9 +81,16 @@ async def test_empty_fifo_attempt_pop_two(dut):
     - neither should be valid
     """
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
 
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
+
+    
     assert int(dut.o_fifo_empty.value) == 1
     assert int(dut.o_pop_valid0.value) == 0
     assert int(dut.o_pop_valid1.value) == 0
@@ -192,10 +119,16 @@ async def test_one_free_slot_instr1_not_pushed(dut):
     WR0 = 1
     WR1 = 1
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
 
-    await fill_fifo_with_n(dut, DEPTH - 1)
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
+
+    await fill_fifo_with_n(dut, INSTRUCTION_FIFO_DEPTH - 1)
 
     assert int(dut.o_fifo_full.value) == 0
     assert int(dut.o_fifo_empty.value) == 0
@@ -204,7 +137,7 @@ async def test_one_free_slot_instr1_not_pushed(dut):
 
     assert int(dut.o_fifo_full.value) == 1
 
-    expected = list(range(DEPTH - 1)) + [INSTR0]
+    expected = list(range(INSTRUCTION_FIFO_DEPTH - 1)) + [INSTR0]
     await pop_n_and_check(dut, expected)
 
     assert int(dut.o_fifo_empty.value) == 1
@@ -223,16 +156,22 @@ async def test_two_free_slots_push_instr0_and_instr1(dut):
     WR0 = 1
     WR1 = 1
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
 
-    await fill_fifo_with_n(dut, DEPTH - 2)
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
+
+    await fill_fifo_with_n(dut, INSTRUCTION_FIFO_DEPTH - 2)
 
     await push(dut, WR0, WR1, INSTR0, INSTR1)
 
     assert int(dut.o_fifo_full.value) == 1
 
-    expected = list(range(DEPTH - 2)) + [INSTR0, INSTR1]
+    expected = list(range(INSTRUCTION_FIFO_DEPTH - 2)) + [INSTR0, INSTR1]
     await pop_n_and_check(dut, expected)
 
     assert int(dut.o_fifo_empty.value) == 1
@@ -250,8 +189,14 @@ async def test_more_than_two_free_slots_push_both_happy_path(dut):
     WR0 = 1
     WR1 = 1
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
+
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
 
     await push(dut, WR0, WR1, INSTR0, INSTR1)
 
@@ -281,8 +226,14 @@ async def test_count_two_pop_instr0_and_instr1(dut):
     WR0 = 1
     WR1 = 1
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
+
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
 
     await push(dut, WR0, WR1, INSTR0, INSTR1)
 
@@ -312,8 +263,14 @@ async def test_count_one_only_pop_instr0(dut):
     WR0 = 1
     WR1 = 0
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
+
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
 
     await push(dut, WR0, WR1, INSTR0, INSTR1)
 
@@ -337,8 +294,14 @@ async def test_count_greater_than_two_pop_both_happy_path(dut):
     - count > 2
     - instr0 and instr1 should both pop correctly
     """
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
+
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
 
     await push(dut, 1, 1, 7000, 7001)
     await push(dut, 1, 1, 7002, 7003)
@@ -399,88 +362,25 @@ async def test_pop_nine_instructions_until_empty(dut):
     count = 0 → valid0=0, valid1=0, empty=1
     """
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
+
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
 
     expected_values = list(range(9000, 9009))
 
-    # Push 9 instructions:
-    # Push 8 using dual pushes, then 1 using single push
-    await push(dut, 1, 1, expected_values[0], expected_values[1])
-    await push(dut, 1, 1, expected_values[2], expected_values[3])
-    await push(dut, 1, 1, expected_values[4], expected_values[5])
-    await push(dut, 1, 1, expected_values[6], expected_values[7])
-    await push(dut, 1, 0, expected_values[8], 0)
+    await push_values(dut, expected_values)
 
-    # FIFO should not be empty and should have at least two valid outputs
     assert int(dut.o_fifo_empty.value) == 0
     assert int(dut.o_pop_valid0.value) == 1
     assert int(dut.o_pop_valid1.value) == 1
 
-    idx = 0
+    await pop_n_and_check(dut, expected_values)
 
-    # Pop while more than one instruction remains
-    while idx + 1 < len(expected_values):
-        await Timer(1, unit="ns")
-
-        assert int(dut.o_pop_valid0.value) == 1
-        assert int(dut.o_pop_valid1.value) == 1
-
-        instr0 = int(dut.o_pop_instr0.value)
-        instr1 = int(dut.o_pop_instr1.value)
-
-        dut._log.info(
-            "Popping pair: instr0=%0d instr1=%0d expected0=%0d expected1=%0d",
-            instr0,
-            instr1,
-            expected_values[idx],
-            expected_values[idx + 1],
-        )
-
-        assert instr0 == expected_values[idx]
-        assert instr1 == expected_values[idx + 1]
-
-        dut.rd_en0.value = 1
-        dut.rd_en1.value = 1
-
-        await RisingEdge(dut.i_clk)
-        await Timer(1, unit="ns")
-
-        dut.rd_en0.value = 0
-        dut.rd_en1.value = 0
-
-        idx += 2
-
-    # Now exactly one instruction should remain
-    assert idx == 8
-
-    await Timer(1, unit="ns")
-
-    assert int(dut.o_fifo_empty.value) == 0
-    assert int(dut.o_pop_valid0.value) == 1
-    assert int(dut.o_pop_valid1.value) == 0
-
-    instr0 = int(dut.o_pop_instr0.value)
-
-    dut._log.info(
-        "Popping final single instruction: instr0=%0d expected0=%0d",
-        instr0,
-        expected_values[idx],
-    )
-
-    assert instr0 == expected_values[idx]
-
-    # Request two pops anyway. FIFO should only accept one internally.
-    dut.rd_en0.value = 1
-    dut.rd_en1.value = 1
-
-    await RisingEdge(dut.i_clk)
-    await Timer(1, unit="ns")
-
-    dut.rd_en0.value = 0
-    dut.rd_en1.value = 0
-
-    # FIFO should now be empty
     assert int(dut.o_fifo_empty.value) == 1
     assert int(dut.o_fifo_full.value) == 0
     assert int(dut.o_pop_valid0.value) == 0
@@ -501,8 +401,14 @@ async def test_simultaneous_push_two_pop_two(dut):
     - Then after another pop, outputs should be 200 and 201
     """
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
+
+    start_clock(clk, period_ns=10)
+
+    await setup_fifo(dut)
+    
+    await reset_dut(clk, rst, active_low=True, cycles=2)
 
     # Fill FIFO with 4 instructions
     await push(dut, 1, 1, 100, 101)
@@ -583,7 +489,7 @@ async def test_simultaneous_push_two_pop_two(dut):
 def test_instr_fifo_runner():
     
     sim = os.getenv("SIM", "questa")
-    proj_path = Path(__file__).resolve().parent.parent
+    proj_path = Path(__file__).resolve().parent.parent.parent
 
     sources = [proj_path / "hdl" / "instruction_fetch_unit" / "instruction_fifo.sv"]
 
@@ -592,7 +498,7 @@ def test_instr_fifo_runner():
     runner.build(
         sources=sources,
         hdl_toplevel="instruction_fifo",
-        parameters={"DATA_WIDTH": 32, "DEPTH":16},
+        parameters={"DATA_WIDTH": DATA_WIDTH, "DEPTH": INSTRUCTION_FIFO_DEPTH},
         build_dir="sim_build/instr_fifo_test",
         always=True,
         clean=True
@@ -601,8 +507,8 @@ def test_instr_fifo_runner():
 
     runner.test(
         hdl_toplevel="instruction_fifo",
-        test_module="test_instruction_fifo",
-        parameters={"DATA_WIDTH": 32, "DEPTH":16},
+        test_module="tb.unit.test_instruction_fifo",
+        parameters={"DATA_WIDTH": DATA_WIDTH, "DEPTH": INSTRUCTION_FIFO_DEPTH},
         build_dir="sim_build/instr_fifo_test",
         
     )

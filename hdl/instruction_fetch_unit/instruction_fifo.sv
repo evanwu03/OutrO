@@ -64,7 +64,7 @@ always_comb begin
     w_free_slots = QUEUE_DEPTH - w_count;
 
     // Write acceptance 
-    // TO-DO: outisde logic should ensure that instr1 can not be pushed if at the
+    // TO-DO: outside logic should ensure that instr1 can not be pushed if at the
     // last program instruction. wr_en1 should not be asserted with that in mind    
     wr_valid0  = wr_en0 && (w_free_slots >= 1);
     wr_valid1  = wr_en1 && (w_free_slots >= 2);

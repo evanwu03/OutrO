@@ -14,8 +14,8 @@ module rat
 
 
     // From Commit/ROB
-    input logic      i_commit_valid,
-    input logic      i_commit_writes_rd,
+    input logic         i_commit_valid,
+    input rob_instr_e   i_commit_type,
     input arch_reg_t i_commit_arch,
     input rob_tag_t  i_commit_tag,
 
@@ -62,7 +62,7 @@ always_ff @(posedge i_clk or negedge i_nrst) begin
     end else begin
 
         // Commit clear
-        if (i_commit_valid && i_commit_writes_rd && i_commit_arch != ARCH_PC) begin
+        if (i_commit_valid && i_commit_type == ROB_REG && i_commit_arch != ARCH_PC) begin
             if (rat[i_commit_arch].valid && rat[i_commit_arch].tag == i_commit_tag) begin
                 rat[i_commit_arch].valid <= 1'b0;
                 rat[i_commit_arch].tag   <= '0;
@@ -70,7 +70,7 @@ always_ff @(posedge i_clk or negedge i_nrst) begin
         end
 
         // Rename/update
-        if (i_writes_rd && (i_dest_arch !== ARCH_PC)) begin // Should PC register rename be invalid?
+        if (i_writes_rd && (i_dest_arch != ARCH_PC)) begin // Should PC register rename be invalid?
             rat[i_dest_arch].valid <= 1'b1;
             rat[i_dest_arch].tag   <= i_dest_tag;
         end
