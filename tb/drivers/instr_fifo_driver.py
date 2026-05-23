@@ -22,7 +22,7 @@ async def push(dut, wr0, wr1, instr0=0, instr1=0):
     dut.wr_en0.value = 0
     dut.wr_en1.value = 0
 
-async def push_values(dut, values):
+async def push_values(dut, values: list):
     """
     Push a list of instruction values into the FIFO.
     Uses dual-push when possible.
