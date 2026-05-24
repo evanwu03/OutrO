@@ -1,16 +1,12 @@
-
-
 # test_instruction_fetch_unit.py
-
 import os
 from pathlib import Path
 
 import cocotb
-from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge
+from cocotb.triggers import RisingEdge, Timer
 from cocotb_tools.runner import get_runner
-from cocotb.triggers import Timer
 
+from ..common.clock_reset import start_clock, reset_dut
 
 """ Contents of program.hex for reference"""
 """ PROGRAM = [
@@ -33,26 +29,21 @@ from cocotb.triggers import Timer
 ]
  """
 
-PROGRAM_HEX = (Path(__file__).resolve().parent / "../programs/program.hex").resolve()
+PROGRAM_HEX = (Path(__file__).resolve().parent.parent / "../programs/program.hex").resolve()
 
 with open(PROGRAM_HEX) as f:
     PROGRAM = [int(line.strip(), 16) for line in f if line.strip()]
 
 instr_count = len(PROGRAM)
 
+async def setup_dut(dut, pc=0, stall=False) -> None:
+    dut.i_pc.value = pc
 
-async def reset_dut(dut):
-    dut.i_nrst.value = 0
-    dut.i_pc.value = 0
-    dut.i_instr_stall.value = 0
+    if(stall):
+        dut.i_instr_stall.value = 1
+    else: 
+        dut.i_instr_stall.value = 0
 
-
-    await RisingEdge(dut.i_clk)
-    await RisingEdge(dut.i_clk)
-
-    dut.i_nrst.value = 1
-    #await RisingEdge(dut.i_clk)
-    #await Timer(1, unit="ns")
 
 @cocotb.test()
 async def test_fetch_instruction_pairs(dut):
@@ -62,13 +53,18 @@ async def test_fetch_instruction_pairs(dut):
 
     The FIFO streams one pair out while the IF unit pushes the next pair in.
     """
+    
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
-
-    await reset_dut(dut)
+    clk = dut.i_clk
+    rst = dut.i_nrst
 
     pc = 0
-    dut.i_pc.value = pc
+
+    start_clock(clk, period_ns=10)
+
+    await setup_dut(dut, pc=pc, stall=False)
+    await reset_dut(clk, rst, active_low=True, cycles=2)
+
 
     # Prime the FIFO with the first fetch pair.
     await RisingEdge(dut.i_clk)
@@ -134,8 +130,6 @@ async def test_fetch_instruction_pairs(dut):
         await RisingEdge(dut.i_clk)
         await Timer(1, unit="ns")
 
-
-
     assert int(dut.w_fifo_empty.value) == 1
     assert int(dut.w_pop_valid0.value) == 0
     assert int(dut.w_pop_valid1.value) == 0
@@ -153,16 +147,19 @@ async def test_instr_stall_holds_current_output_pair(dut):
     - Therefore o_instr0/o_instr1 should remain PROGRAM[0]/PROGRAM[1].
     """
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
+    clk = dut.i_clk
+    rst = dut.i_nrst
 
-    await reset_dut(dut)
+    pc = 0
 
+    start_clock(clk, period_ns=10)
+
+    await setup_dut(dut, pc=pc, stall=False)
+    await reset_dut(clk, rst, active_low=True, cycles=2)
+    
     # -------------------------
     # Cycle 1: fetch first pair
     # -------------------------
-    dut.i_pc.value = 0x0
-    dut.i_instr_stall.value = 1  # hold FIFO output once first pair arrives
-
     await RisingEdge(dut.i_clk)
     await Timer(1, unit="ns")
 
@@ -201,7 +198,6 @@ async def test_instr_stall_holds_current_output_pair(dut):
     )
 
 
-    
     # Cycle 3: remove stall
     # Fetch next pair of instructions 
     pc_next = int(dut.o_pc_next.value)
@@ -252,7 +248,7 @@ async def test_instr_stall_holds_current_output_pair(dut):
 def test_if_unit_runner():
     
     sim = os.getenv("SIM", "questa")
-    proj_path = Path(__file__).resolve().parent.parent
+    proj_path = Path(__file__).resolve().parent.parent.parent
 
     sources = [proj_path / "hdl" / "instruction_fetch_unit" / "instruction_fetch_unit.sv",
                proj_path / "hdl" / "instruction_fetch_unit" / "instruction_fifo.sv",
@@ -276,7 +272,7 @@ def test_if_unit_runner():
 
     runner.test(
         hdl_toplevel="instruction_fetch_unit",
-        test_module="test_if_unit",
+        test_module="tb.unit.test_if_unit",
         parameters=parameters,
         build_dir="sim_build/if_unit_test",
         

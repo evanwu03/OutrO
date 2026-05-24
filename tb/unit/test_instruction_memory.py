@@ -1,21 +1,14 @@
 
-# This file is public domain, it can be freely copied without restrictions.
-# SPDX-License-Identifier: CC0-1.0
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
 import cocotb
-from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge
 from cocotb_tools.runner import get_runner
 from cocotb.triggers import Timer
 
-
 LANGUAGE = os.getenv("TOPLEVEL_LANG", "verilog").lower().strip()
-
-
 
 async def load_program(dut, instrs):
     for i, instr in enumerate(instrs):
@@ -87,7 +80,7 @@ async def test_non_word_aligned_pc_returns_zero(dut):
 
 def run_test(testcase, instr_count, build_dir):
     sim = os.getenv("SIM", "questa")
-    proj_path = Path(__file__).resolve().parent.parent
+    proj_path = Path(__file__).resolve().parent.parent.parent
 
     sources = [proj_path / "hdl" / "instruction_fetch_unit" / "instruction_memory.sv"]
 
@@ -103,7 +96,7 @@ def run_test(testcase, instr_count, build_dir):
 
     runner.test(
         hdl_toplevel="instruction_memory",
-        test_module="test_instruction_memory",
+        test_module="tb.unit.test_instruction_memory",
         testcase=testcase,
         parameters={"INSTR_COUNT": instr_count},
         build_dir=build_dir,

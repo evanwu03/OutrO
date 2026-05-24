@@ -1,30 +1,33 @@
 
 
+from pathlib import Path
+import os
+
 import cocotb
-from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, Timer
+from cocotb_tools.runner import get_runner
+
+from ..common.clock_reset import start_clock
+from ..common.clock_reset import reset_dut
 
 
-async def reset_dut(dut):
-    dut.i_nrst.value = 0
+def setup_dut(dut): 
     dut.i_mem_write_en.value = 0
     dut.i_addr.value = 0
     dut.i_wdata.value = 0
-
-    await RisingEdge(dut.i_clk)
-    await RisingEdge(dut.i_clk)
-
-    dut.i_nrst.value = 1
-    await RisingEdge(dut.i_clk)
 
 
 @cocotb.test()
 async def test_basic_write_read(dut):
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
+    clk = dut.i_clk
+    rst = dut.i_nrst
 
-    await reset_dut(dut)
 
+    start_clock(clk, period_ns=10)
+
+    await reset_dut(clk, rst, active_low=True, cycles=2)
+    
     # Write 0xDEADBEEF to address 0x0
     dut.i_mem_write_en.value = 1
     dut.i_addr.value = 0x0
@@ -46,9 +49,13 @@ async def test_basic_write_read(dut):
 @cocotb.test()
 async def test_multiple_addresses(dut):
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
+    clk = dut.i_clk
+    rst = dut.i_nrst
 
-    await reset_dut(dut)
+
+    start_clock(clk, period_ns=10)
+
+    await reset_dut(clk, rst, active_low=True, cycles=2)
 
     # Write address (0x0) <- 0x11111111
     dut.i_mem_write_en.value = 1
@@ -81,9 +88,13 @@ async def test_multiple_addresses(dut):
 @cocotb.test()
 async def test_unaligned_address(dut):
 
-    cocotb.start_soon(Clock(dut.i_clk, 10, unit="ns").start())
+    clk = dut.i_clk
+    rst = dut.i_nrst
 
-    await reset_dut(dut)
+
+    start_clock(clk, period_ns=10)
+
+    await reset_dut(clk, rst, active_low=True, cycles=2)
 
     # Attempt unaligned write
     dut.i_mem_write_en.value = 1
@@ -99,11 +110,45 @@ async def test_unaligned_address(dut):
 
     await Timer(1, unit="ns")
 
-    assert dut.o_rdata.value.integer == 0
+    assert dut.o_rdata.value.to_unsigned() == 0
 
     # Verify aligned word 0 was not modified on accident
     dut.i_addr.value = 0x0
 
     await Timer(1, unit="ns")
 
-    assert dut.o_rdata.value.integer == 0
+    assert dut.o_rdata.value.to_unsigned() == 0
+
+
+
+def test_instr_fifo_runner():
+    
+    sim = os.getenv("SIM", "questa")
+    proj_path = Path(__file__).resolve().parent.parent.parent
+
+    sources = [proj_path / "hdl" / "data_memory.sv"]
+
+    runner = get_runner(sim)
+
+    parameters = {}
+
+    runner.build(
+        sources=sources,
+        hdl_toplevel="data_memory",
+        parameters=parameters,
+        build_dir="sim_build/data_mem_test",
+        always=True,
+        clean=True
+        
+    )
+
+    runner.test(
+        hdl_toplevel="data_memory",
+        test_module="tb.unit.test_data_memory",
+        parameters=parameters,
+        build_dir="sim_build/data_mem_test", 
+    )
+
+
+if __name__ == "__main__":
+    test_instr_fifo_runner()

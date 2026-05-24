@@ -43,6 +43,10 @@ case "$1" in
     rat) 
         run_pytest unit/test_rat.py
         ;;
+
+    data_mem) 
+        run_pytest unit/test_data_memory.py
+        ;;
     *)
         run_pytest "$@"
         ;;

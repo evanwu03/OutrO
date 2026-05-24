@@ -33,9 +33,6 @@ module rat
     output  rob_tag_t  o_src0_rat_tag,
     output  logic      o_src1_rat_valid,
     output  rob_tag_t  o_src1_rat_tag
-
-
-    // add commit logic later
 );
 
 
