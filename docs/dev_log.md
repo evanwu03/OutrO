@@ -89,4 +89,12 @@ Today I will focus on writing tests for the reservation station
 and refactoring existing tests, so they are easier to modify 
 and share standard helper functions.
 
-## 5/21/2026
+## 5/24/2026
+- Significant progress made on refactoring cocotb tests
+- Plan to study formal verification
+
+### To-do:
+- ~~Implement Address unit~~
+- Implement Load buffer
+
+- need to implement the address field as they are required for stores when ROB commits to memory

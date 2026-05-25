@@ -86,7 +86,6 @@ always_ff @(posedge i_clk or negedge i_nrst) begin
             rob[i] <= '0;
         end
         
-    // Update from CDB 
     end else begin
         // CDB writeback
         if (i_cdb.valid) begin
