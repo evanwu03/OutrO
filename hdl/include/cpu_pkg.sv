@@ -169,6 +169,13 @@ package cpu_pkg;
         logic [DATA_WIDTH-1:0] data;
     } cdb_packet_t;
 
+
+    typedef struct packed {
+        logic valid; 
+        rob_tag_t tag;
+        logic [DATA_WIDTH-1:0] addr;
+    } load_buffer_entry_t;
+
     
     
 endpackage : cpu_pkg
