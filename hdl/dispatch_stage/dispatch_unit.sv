@@ -176,9 +176,13 @@ module  dispatch_unit
                     if(i_decoded.uses_imm) begin  // offset is a register, not very clear
                         w_uses_src1 = 1'b1;
                         o_src1_arch = i_decoded.rm;
+                        o_rs_entry.address = i_decoded.rm;
                     end else begin
                         w_src1_is_imm = 1'b1;
+                        o_rs_entry.address = i_decoded.offset;
                     end
+
+                    
     
                 end
 

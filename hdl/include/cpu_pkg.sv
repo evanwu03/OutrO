@@ -99,7 +99,9 @@ package cpu_pkg;
         rob_instr_e instr_type;
         arch_reg_t dest_arch_reg; 
         logic [DATA_WIDTH-1:0] value;
+        logic [DATA_WIDTH-1:0] addr;
         logic ready; 
+        logic addr_ready;
     } rob_entry_t;
 
 

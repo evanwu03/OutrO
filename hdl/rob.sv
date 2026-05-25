@@ -24,11 +24,15 @@ module rob
     // CDB writeback
     input cdb_packet_t i_cdb,
 
+    // LDR/STR update
+    input load_buffer_entry_t i_load,
+
     // Output --> Register file / Load/store unit (LSU)
     output arch_reg_t o_commit_arch_reg,
     output rob_instr_e o_commit_type,
     output logic [DATA_WIDTH-1:0] o_commit_data,
     output rob_tag_t o_commit_tag, 
+    output logic [DATA_WIDTH-1:0] o_commit_addr,
 
     // ROB status
     output logic o_empty,
@@ -66,14 +70,43 @@ assign o_empty = w_empty;
 // Combinatorial head read
 assign head_entry = rob[w_head];
 
-assign o_commit_valid = !w_empty && head_entry.ready;
 assign o_commit_arch_reg = head_entry.dest_arch_reg;
 assign o_commit_data = head_entry.value;
 assign o_commit_tag = w_head;
 assign o_commit_type = head_entry.instr_type;
+assign o_commit_addr = head_entry.addr;
 
 assign do_commit = commit_en && o_commit_valid;
 assign do_dispatch = wr_en && !w_full;
+
+
+always_comb begin
+    o_commit_valid = 1'b0;
+
+    if (!w_empty && head_entry.valid) begin
+        unique case (head_entry.instr_type)
+            ROB_REG: begin
+                o_commit_valid = head_entry.ready;
+            end
+
+            ROB_LOAD: begin
+                // Load commits once loaded data has returned on CDB
+                o_commit_valid = head_entry.ready;
+            end
+
+            ROB_STORE: begin
+                // Store commits only when address and store data are known
+                o_commit_valid = head_entry.addr_ready && head_entry.ready;
+            end
+
+            default: begin
+                o_commit_valid = 1'b0;
+            end
+        endcase
+    end
+end
+
+
 
 always_ff @(posedge i_clk or negedge i_nrst) begin
     if (!i_nrst) begin
@@ -87,18 +120,27 @@ always_ff @(posedge i_clk or negedge i_nrst) begin
         end
         
     end else begin
+
+
+        if (i_load.valid) begin
+            rob[i_load.tag].addr <= i_load.addr;
+            rob[i_load.tag].addr_ready <= 1'b1;
+    
+        end
+
         // CDB writeback
         if (i_cdb.valid) begin
             rob[i_cdb.rob_tag].value <= i_cdb.data;
             rob[i_cdb.rob_tag].ready <= 1'b1;
         end
-        
+
         // Dispatch allocation
         if (do_dispatch) begin
             rob[w_tail] <= i_dispatch_entry;
             w_tail <= w_tail + 1'b1;
 
         end     
+
 
         // Commit retirement
         if (do_commit) begin

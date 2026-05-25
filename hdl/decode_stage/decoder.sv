@@ -118,7 +118,7 @@ module decoder
                 if (decoded.uses_imm) begin
                     decoded.rm      = w_rm;         // rm
                 end else begin
-                    decoded.offset  = w_offset;  // offset   
+                    decoded.offset  = w_offset;     // offset   
                 end
 
                 
