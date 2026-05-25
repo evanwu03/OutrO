@@ -214,3 +214,7 @@ __marimo__/
 # Questa Sim build
 sim_build/
 qrun.log
+
+# yosys 
+yosys/
+sby/
