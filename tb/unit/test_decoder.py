@@ -154,7 +154,7 @@ def test_if_unit_runner():
 
     sources = [ 
         proj_path / "hdl"  /"include" / "cpu_pkg.sv",
-        proj_path / "hdl" / "decode_stage" / "decoder.sv",
+        proj_path / "hdl" / "dispatch" / "decoder.sv",
         ]
 
     runner = get_runner(sim)

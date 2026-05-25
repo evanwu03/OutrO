@@ -564,7 +564,7 @@ def test_dispatch_unit_runner():
     proj_path = Path(__file__).resolve().parent.parent.parent
 
     sources = [proj_path / "hdl"  /"include" / "cpu_pkg.sv",
-               proj_path / "hdl" / "dispatch_stage" / "dispatch_unit.sv"]
+               proj_path / "hdl" / "dispatch" / "dispatch_unit.sv"]
 
     runner = get_runner(sim)
 

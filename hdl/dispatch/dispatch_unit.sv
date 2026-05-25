@@ -117,6 +117,7 @@ module  dispatch_unit
 
                     // Assign instruction type
                     o_rob_entry.instr_type = ROB_REG;
+                    o_rob_entry.dest_arch_reg = i_decoded.rd;
 
                     // 1. Assign instruction type for RS and ROB:
                     case (i_decoded.alu_opcode) 

@@ -126,7 +126,7 @@ def test_instr_fifo_runner():
     sim = os.getenv("SIM", "questa")
     proj_path = Path(__file__).resolve().parent.parent.parent
 
-    sources = [proj_path / "hdl" / "data_memory.sv"]
+    sources = [proj_path / "hdl" / "memory" / "data_memory.sv"]
 
     runner = get_runner(sim)
 

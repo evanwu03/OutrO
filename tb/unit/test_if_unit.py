@@ -250,9 +250,9 @@ def test_if_unit_runner():
     sim = os.getenv("SIM", "questa")
     proj_path = Path(__file__).resolve().parent.parent.parent
 
-    sources = [proj_path / "hdl" / "instruction_fetch_unit" / "instruction_fetch_unit.sv",
-               proj_path / "hdl" / "instruction_fetch_unit" / "instruction_fifo.sv",
-               proj_path / "hdl" / "instruction_fetch_unit" / "instruction_memory.sv"]
+    sources = [proj_path / "hdl" / "frontend" / "instruction_fetch_unit.sv",
+               proj_path / "hdl" / "frontend" / "instruction_fifo.sv",
+               proj_path / "hdl" / "frontend" / "instruction_memory.sv"]
 
     runner = get_runner(sim)
 

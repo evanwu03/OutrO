@@ -89,24 +89,30 @@ IS_LINK_BIT = 0
 
 # rob_entry_t packed layout
 # typedef struct packed {
-#     rob_instr_e instr_type;      // 2
-#     arch_reg_t dest_arch_reg;    // 4
-#     logic [31:0] value;          // 32
-#     logic ready;                 // 1
-# } rob_entry_t
+#     rob_instr_e instr_type;       # 2
+#     arch_reg_t dest_arch_reg;     # 4
+#     logic [31:0] value;           # 32
+#     logic [31:0] addr;            # 32
+#     logic ready;                  # 1
+#     logic addr_ready;             # 1
+# } rob_entry_t;
 
-ROB_ENTRY_WIDTH = 39
+ROB_ENTRY_WIDTH = 72
 
-ROB_INSTR_TYPE_HI = 38
-ROB_INSTR_TYPE_LO = 37
+ROB_INSTR_TYPE_HI = 71
+ROB_INSTR_TYPE_LO = 70
 
-ROB_DEST_ARCH_HI = 36
-ROB_DEST_ARCH_LO = 33
+ROB_DEST_ARCH_HI = 69
+ROB_DEST_ARCH_LO = 66
 
-ROB_VALUE_HI = 32
-ROB_VALUE_LO = 1
+ROB_VALUE_HI = 65
+ROB_VALUE_LO = 34
 
-ROB_READY_BIT = 0
+ROB_ADDR_HI = 33
+ROB_ADDR_LO = 2
+
+ROB_READY_BIT = 1
+ROB_ADDR_READY_BIT = 0
 
 
 

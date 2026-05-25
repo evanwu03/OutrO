@@ -222,7 +222,7 @@ def test_if_unit_runner():
     proj_path = Path(__file__).resolve().parent.parent.parent
 
     sources = [proj_path / "hdl"  /"include" / "cpu_pkg.sv",
-               proj_path / "hdl" / "dispatch_stage" / "rat.sv"]
+               proj_path / "hdl" / "dispatch" / "rat.sv"]
 
     runner = get_runner(sim)
 
