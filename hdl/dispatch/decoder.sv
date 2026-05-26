@@ -25,14 +25,13 @@ module decoder
     logic [3:0]  w_rm;
     logic [11:0] w_op2;
 
-
     // Single Data Transfer fields
     logic w_pre_index;   // P-bit Pre/Post indexing
-    logic w_offset_dir; // U-bit Up/Down Bit
-    logic w_is_byte;    // B-bit 
-    logic w_writeback;  // W-bit Write-back bit
-    logic w_is_load;    // L-bit Load/Store bit, 
-                        // 1 if Load from memory, 0 if store to memory
+    logic w_offset_dir;  // U-bit Up/Down Bit
+    logic w_is_byte;     // B-bit 
+    logic w_writeback;   // W-bit Write-back bit
+    logic w_is_load;     // L-bit Load/Store bit, 
+                         // 1 if Load from memory, 0 if store to memory
     logic [23:0] w_offset;
 
     // Branch
@@ -42,9 +41,7 @@ module decoder
     always_comb begin : decode_packet
         decoded = '0;
         decoded.valid     = 1'b1;
-        //decoded.raw_instr = i_instr;
         
-        // Extract bits 27:26
         w_cond        = i_instr[31:28];
         w_instr_class = i_instr[27:26];
         
@@ -52,7 +49,7 @@ module decoder
         w_rn          = i_instr[19:16];
         w_rd          = i_instr[15:12];
         w_rm          = i_instr[3:0];
-
+        
         decoded.cond = w_cond;
 
         case (w_instr_class)
@@ -94,7 +91,6 @@ module decoder
                     
             end
             
-
             CLASS_MEM: begin // Data memory instructions
 
                 w_pre_index  = i_instr[24];
@@ -120,9 +116,6 @@ module decoder
                 end else begin
                     decoded.offset  = w_offset;     // offset   
                 end
-
-                
-
             end
 
             CLASS_BRANCH: begin // Branch instructions
@@ -146,13 +139,5 @@ module decoder
             end
         
         endcase        
-
-
     end 
-
-
-
-
-
-
 endmodule : decoder
