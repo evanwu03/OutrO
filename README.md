@@ -3,9 +3,9 @@
 
 
 # Nomachine 
-source /home/cad/ee6301/bin/init_modules
-module avail
-module add amd/fpgatools 
-module help amd/fpgatools 
+- source /home/cad/ee6301/bin/init_modules
+- module avail
+- module add amd/fpgatools 
+- module help amd/fpgatools 
 
 
